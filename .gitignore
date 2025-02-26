@@ -1,0 +1,16 @@
+     # Ignore Python cache
+     __pycache__/
+     *.py[cod]
+
+     # Ignore virtual environment
+     venv/
+     .env/
+
+     # Ignore MacOS system files
+     .DS_Store
+
+     # Ignore log files
+     *.log
+
+     # Ignore IDE settings
+     .idea/
