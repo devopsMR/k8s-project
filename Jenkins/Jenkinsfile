@@ -20,7 +20,7 @@ pipeline {
         failure {
             script {
                 // Add actions you want upon job failure, like:
-                echo "Build failed. Please check the logs for more details."
+                echo "Build failed! Please check the logs for more details."
             }
         }
     }
