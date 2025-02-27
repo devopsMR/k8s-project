@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: producer-config
+  namespace: k8s-project
+data:
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USERNAME: "rabbitusername"
+  RABBITMQ_QUEUE: "pc"
+  RABBITMQ_MESSAGE_REPEAT: "0"

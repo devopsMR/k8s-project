@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consumer-config
+  namespace: k8s-project
+data:
+  RABBITMQ_HOST: "rabbitmq"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USERNAME: "rabbitusername"
+  RABBITMQ_QUEUE: "pc"
+  PROMETHEUS_PORT: "9422"
