@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rabbitmq-config
+  namespace: k8s-project
+data:
+  RABBITMQ_USERNAME: "rabbitusername"

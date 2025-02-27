@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer-deployment
+  namespace: k8s-project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer-mq
+          image: devopsmichaelrosenbaum/producer:0.1
+          imagePullPolicy: Always # Never - will Ensure it uses the local image and not pulling from a registry
+          envFrom:
+            - configMapRef:
+                name: producer-config
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: producer-secret
+                  key: RABBITMQ_PASSWORD
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
