@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-k8s-project
+    user: root
+    ports:
+      - 8080:8080 # Jenkins UI
+      - 50000:50000 # Jenkins agent communication
+    volumes:
+      - jenkins_home:/var/jenkins_home # Persist Jenkins data
+      - /var/run/docker.sock:/var/run/docker.sock # Access host Docker Daemon (Optional, see note below)
+      - /usr/local/bin/docker:/usr/local/bin/docker # Access Docker CLI inside Jenkins
+    environment:
+      - DOCKER_HOST=tcp://dind:2375 # Use the Docker Daemon from the "dind" service
+      - DOCKER_TLS_CERTDIR=""
+
+  dind:
+    image: docker:stable-dind
+    privileged: true # Required for DinD
+    container_name: docker-dind-k8s-project
+    environment:
+      - DOCKER_TLS_CERTDIR="" # Disable TLS for simplicity
+    volumes:
+      - dind-storage:/var/lib/docker # Store DinD data persistently
+
+volumes:
+  jenkins_home:
+  dind-storage:
