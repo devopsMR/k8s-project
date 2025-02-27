@@ -22,10 +22,10 @@ pipeline {
                     try {
                         withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
                             // Build, tag, and push Docker image
-                            def dockerfilePath = 'k8s-project/bundle/producer'
-                            sh "docker build -t ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG} ."
-                            def dockerfilePath = 'k8s-project/bundle/consumer'
-                            sh "docker build -t ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG} ."
+                            def dockerfilePathPruducer = 'k8s-project/bundle/producer'
+                            sh "docker build -t ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG} ${dockerfilePathPruducer}"
+                            def dockerfilePathConsumer = 'k8s-project/bundle/consumer'
+                            sh "docker build -t ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG} ${dockerfilePathConsumer}"
                             sh "docker tag ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG} ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG}"
                             sh "docker tag ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG} ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG}"
                             sh "docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}"
