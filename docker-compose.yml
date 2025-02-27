@@ -19,7 +19,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
 
   consumer:
-    build: consumer
+    build: bundle/consumer
     env_file:
       - .env
     links:
@@ -34,7 +34,7 @@ services:
       - k8s-project-network
 
   producer:
-    build: producer
+    build: bundle/producer
     env_file:
       - .env
     links:
