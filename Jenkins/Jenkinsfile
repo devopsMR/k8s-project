@@ -4,13 +4,8 @@ pipeline {
         buildDiscarder(logRotator(daysToKeepStr: '5', numToKeepStr: '5'))
     }
     environment {
-        // The `PYTHONPATH` environment variable points to the Jenkins workspace root
         PYTHONPATH = "${env.WORKSPACE}"
-
-        // Dynamic build-related variables
         DOCKER_TAG = "${env.BUILD_NUMBER}"
-
-        // Docker repository and image names
         DOCKER_REPO_NAME = "devopsmichaelrosenbaum"
         DOCKER_IMAGE_NAME = "projectdevops"
     }
@@ -24,8 +19,9 @@ pipeline {
     post {
         failure {
             script {
+                // Add actions you want upon job failure, like:
+                echo "Build failed. Please check the logs for more details."
             }
         }
     }
 }
-
