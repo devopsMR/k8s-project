@@ -16,25 +16,35 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/devopsMR/k8s-project.git'
             }
         }
-        stage('build and push image') {
+        stage('CI - build') {
+            steps {
+                script {
+                    try {
+                        def producerDockerfilePath = 'bundle/producer'
+                        def consumerDockerfilePath = 'bundle/consumer'
+                        sh "docker build -t ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG} ${producerDockerfilePath}"
+                        sh "docker build -t ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG} ${consumerDockerfilePath}"
+                        sh "docker tag ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG} ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG}"
+                        sh "docker tag ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG} ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG}"
+                    } catch (Exception e) {
+                        echo "An error occurred while building or tagging the Docker image: ${e.message}"
+                        error("Stopping pipeline due to failure during 'build' stage.")
+                    }
+                }
+            }
+        }
+        stage('CI - push') {
             steps {
                 script {
                     try {
                         withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_HUB_PASSWORD', usernameVariable: 'DOCKER_HUB_USERNAME')]) {
-                            // Build, tag, and push Docker image
-                            def dockerfilePathPruducer = 'k8s-project/bundle/producer'
-                            sh "docker build -t ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG} ${dockerfilePathPruducer}"
-                            def dockerfilePathConsumer = 'k8s-project/bundle/consumer'
-                            sh "docker build -t ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG} ${dockerfilePathConsumer}"
-                            sh "docker tag ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG} ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG}"
-                            sh "docker tag ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG} ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG}"
                             sh "docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}"
                             sh "docker push ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG}"
                             sh "docker push ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG}"
                         }
                     } catch (Exception e) {
-                        echo "An error occurred while building, pushing, or verifying the Docker image: ${e.message}"
-                        error("Stopping pipeline due to failure during 'build and push image' stage.")
+                        echo "An error occurred while pushing the Docker image: ${e.message}"
+                        error("Stopping pipeline due to failure during 'push' stage.")
                     }
                 }
             }

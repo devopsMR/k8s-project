@@ -1,29 +1,42 @@
-version: '3.8'
-services:
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins-k8s-project
-    user: root
-    ports:
-      - 8080:8080 # Jenkins UI
-      - 50000:50000 # Jenkins agent communication
-    volumes:
-      - jenkins_home:/var/jenkins_home # Persist Jenkins data
-      - /var/run/docker.sock:/var/run/docker.sock # Access host Docker Daemon (Optional, see note below)
-      - /usr/local/bin/docker:/usr/local/bin/docker # Access Docker CLI inside Jenkins
-    environment:
-      - DOCKER_HOST=tcp://dind:2375 # Use the Docker Daemon from the "dind" service
-      - DOCKER_TLS_CERTDIR=""
+   services:
+     jenkins:
+       build:
+         context: .
+         args:
+           DOCKER_GID: 20  # Pass Docker GID (modify this to match your system)
+       container_name: jenkins
+       ports:
+         - "8080:8080"
+         - "50000:50000"
+       volumes:
+         - jenkins_home:/var/jenkins_home
+         - /var/run/docker.sock:/var/run/docker.sock
+       environment:
+         - DOCKER_HOST=tcp://dind:2375
+       depends_on:
+         - dind
+       restart: unless-stopped
+       networks:
+         - shared_network
+         - dind_network
 
-  dind:
-    image: docker:stable-dind
-    privileged: true # Required for DinD
-    container_name: docker-dind-k8s-project
-    environment:
-      - DOCKER_TLS_CERTDIR="" # Disable TLS for simplicity
-    volumes:
-      - dind-storage:/var/lib/docker # Store DinD data persistently
+     dind:
+       image: docker:20.10-dind
+       container_name: dind
+       privileged: true
+       environment:
+         - DOCKER_TLS_CERTDIR=
+       volumes:
+         - dind_storage:/var/lib/docker
+       networks:
+         - dind_network
 
-volumes:
-  jenkins_home:
-  dind-storage:
+   volumes:
+     jenkins_home:
+     dind_storage:
+
+   networks:
+     shared_network:
+       external: true
+     dind_network:
+       driver: bridge
