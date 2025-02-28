@@ -4,11 +4,10 @@ pipeline {
         buildDiscarder(logRotator(daysToKeepStr: '5', numToKeepStr: '5'))
     }
     environment {
-        PYTHONPATH = "${env.WORKSPACE}"
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_REPO_NAME = "devopsmichaelrosenbaum"
-        DOCKER_IMAGE_NAME_CONSUMER = "consumer"
-        DOCKER_IMAGE_NAME_PRODUCER = "producer"
+        def DOCKER_TAG = "${env.BUILD_NUMBER}"
+        def DOCKER_REPO_NAME = "devopsmichaelrosenbaum"
+        def DOCKER_IMAGE_NAME_CONSUMER = "consumer"
+        def DOCKER_IMAGE_NAME_PRODUCER = "producer"
     }
     stages {
         stage('checkout') {
