@@ -51,6 +51,21 @@ pipeline {
         }
     }
     post {
+        always {
+            script {
+                // Remove local images created during the pipeline
+                echo "CI stage clean up - remove Docker images."
+                sh "docker rmi -f ${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG}"
+                sh "docker rmi -f ${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG}'"
+                sh "docker rmi -f ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_PRODUCER}:${DOCKER_TAG}"
+                sh "docker rmi -f ${DOCKER_REPO_NAME}/${DOCKER_IMAGE_NAME_CONSUMER}:${DOCKER_TAG}"
+            }
+        }
+        success {
+            script {
+                echo "Pipeline finished successfully."
+            }
+        }
         failure {
             script {
                 // Add actions you want upon job failure, like:
