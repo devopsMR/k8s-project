@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+    options {
+        buildDiscarder(logRotator(daysToKeepStr: '5', numToKeepStr: '5'))
+    }
+    environment {
+        DOCKER_REPO = "devopsmichaelrosenbaum"
+        HELM_CHART_PATH = "deployments/helm-charts/my-apps"
+        DOCKER_IMAGE_NAME_CONSUMER = "consumer"
+        DOCKER_IMAGE_NAME_PRODUCER = "producer"
+    }
+    stages {
+        stage('checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/devopsMR/k8s-project.git'
+            }
+        }
+        stage('CD - Find Latest Docker Image Tag') {
+            steps {
+                script {
+                    def producerTag = sh(
+                        script: '''
+                        curl -s https://registry.hub.docker.com/v2/repositories/${DOCKER_REPO}/${DOCKER_IMAGE_NAME_PRODUCER}/tags \
+                        | jq -r '.results | sort_by(.last_updated) | last(.[]).name'
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    def consumerTag = sh(
+                        script: '''
+                        curl -s https://registry.hub.docker.com/v2/repositories/${DOCKER_REPO}/${DOCKER_IMAGE_NAME_CONSUMER}/tags \
+                        | jq -r '.results | sort_by(.last_updated) | last(.[]).name'
+                        ''',
+                        returnStdout: true
+                    ).trim()
+                    echo "Latest producer Docker image tag: ${producerTag}"
+                    echo "Latest consumer Docker image tag: ${consumerTag}"
+                    env.LATEST_PRODUCER_TAG = producerTag
+                    env.LATEST_CONSUMER_TAG = consumerTag
+                }
+            }
+        }
+        stage('CD - Upgrade Helm Chart') {
+            steps {
+                dir("${HELM_CHART_PATH}") {
+                    script {
+                        sh """
+                        helm upgrade myhelm . \
+                          --namespace k8s-project \
+                          --set producer.image.tag=${env.LATEST_PRODUCER_TAG} \
+                          --set consumer.image.tag=${env.LATEST_CONSUMER_TAG}
+                        """
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            script {
+                echo "Pipeline finished successfully."
+                echo "Latest producer tag used: ${env.LATEST_PRODUCER_TAG}"
+                echo "Latest consumer tag used: ${env.LATEST_CONSUMER_TAG}"
+            }
+        }
+        failure {
+            script {
+                echo "Continuous Deployment Pipeline failed! Please check the logs for more details."
+            }
+        }
+    }
+}
