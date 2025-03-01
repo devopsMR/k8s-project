@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer-deployment
+  namespace: {{ .Values.namespace.name }}
+spec:
+  replicas: {{ .Values.producer.replicas }}
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer-mq
+          image: {{ .Values.producer.image.repository }}:{{ .Values.producer.image.tag }}
+          imagePullPolicy: {{ .Values.producer.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: rabbitmq-config
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: RABBITMQ_PASSWORD
+          resources:
+            requests:
+              cpu: "{{ .Values.producer.resources.requests.cpu }}"
+              memory: "{{ .Values.producer.resources.requests.memory }}"
+            limits:
+              cpu: "{{ .Values.producer.resources.limits.cpu }}"
+              memory: "{{ .Values.producer.resources.limits.memory }}"
