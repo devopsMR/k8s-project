@@ -3,6 +3,9 @@ pipeline {
     options {
         buildDiscarder(logRotator(daysToKeepStr: '5', numToKeepStr: '5'))
     }
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
     environment {
         def DOCKER_TAG = "${env.BUILD_NUMBER}"
         def DOCKER_REPO_NAME = "devopsmichaelrosenbaum"
