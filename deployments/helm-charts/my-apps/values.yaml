@@ -1,0 +1,68 @@
+namespace:
+  name: k8s-project
+
+resourceQuota:
+  name: quota
+  hard:
+    pods: "10"
+    requests:
+      cpu: "6"
+      memory: "20Gi"
+    limits:
+      cpu: "12"
+      memory: "40Gi"
+
+config:
+  rabbitmq:
+    host: rabbitmq
+    port: "5672"
+    username: rabbitusername
+    queue: pc
+    messageRepeat: "0" # Only used by the producer
+    prometheusPort: "9422" # Only used by the consumer
+
+rabbitmq:
+ auth:
+   existingPasswordSecret: rabbitmq-secret
+   existingSecretPasswordKey: RABBITMQ_PASSWORD
+ resources:
+   requests:
+     cpu: "500m"
+     memory: "512Mi"
+   limits:
+     cpu: "1"
+     memory: "1Gi"
+ storage:
+   size: 5Gi
+
+producer:
+  replicas: 1
+  image:
+    repository: devopsmichaelrosenbaum/producer
+    tag: "9"
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+consumer:
+  replicas: 1
+  image:
+    repository: devopsmichaelrosenbaum/consumer
+    tag: "9"
+    pullPolicy: Always
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  metricsService:
+    name: consumer-metrics-service
+    port: 9422
+    nodePort: 30007
