@@ -27,19 +27,17 @@ k8s-project/
 
 1. **bundle/**
     - Contains the application code (`consumer.py & producer.py`) and its dependencies (`requirements.txt`).
-    - A `Dockerfile` is included to containerize the application.
+    - A `Dockerfile` for each application.
 
 2. **ci-cd/**
     - Contains the `Jenkinsfile`, which defines the Continuous Integration and Continuous Deployment (CI/CD) pipeline.
-      This automates building, testing, and deploying the application.
+      
 
 3. **deployment/**
     - **helm-charts**: Contains Helm templates to deploy the application. `Chart.yaml` provides metadata, `values.yaml`
       stores variable values, and the `templates/` folder contains Kubernetes resource templates.
     - **k8s-manifests**: Contains static Kubernetes YAML files as an alternative to Helm for directly managing
       application deployment in Kubernetes.
-
-This structure ensures modularity and clear separation of concerns for development, CI/CD, and deployment.
 
 ## Commands to retrieve the URLs for accessing the services:
 
