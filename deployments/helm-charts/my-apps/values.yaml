@@ -14,26 +14,11 @@ resourceQuota:
 
 config:
   rabbitmq:
-    host: rabbitmq
+    host: myhelm-rabbitmq
     port: "5672"
-    username: rabbitusername
     queue: pc
     messageRepeat: "0" # Only used by the producer
     prometheusPort: "9422" # Only used by the consumer
-
-rabbitmq:
- auth:
-   existingPasswordSecret: rabbitmq-secret
-   existingSecretPasswordKey: RABBITMQ_PASSWORD
- resources:
-   requests:
-     cpu: "500m"
-     memory: "512Mi"
-   limits:
-     cpu: "1"
-     memory: "1Gi"
- storage:
-   size: 5Gi
 
 producer:
   replicas: 1
@@ -66,3 +51,57 @@ consumer:
     name: consumer-metrics-service
     port: 9422
     nodePort: 30007
+
+rabbitmq:
+  auth:
+    username: rabbitusername
+    existingPasswordSecret: rabbitmq-secret
+    existingSecretPasswordKey: RABBITMQ_PASSWORD
+
+  global:
+    namespaceOverride: k8s-project
+
+  persistence:
+    enabled: true
+    storageClass: ""  # Avoids dynamic provisioning
+    size: 5Gi
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+  service:
+    type: NodePort
+    nodePorts:
+      amqp: 30009   # RabbitMQ AMQP (5672)
+      manager: 30008 # RabbitMQ Management UI (15672)
+
+extraManifests:
+  - apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+      name: rabbitmq-pv
+      namespace: k8s-project
+    spec:
+      capacity:
+        storage: 5Gi
+      accessModes:
+        - ReadWriteOnce
+      persistentVolumeReclaimPolicy: Retain
+      hostPath:
+        path: /mnt/data/rabbitmq
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: rabbitmq-pvc
+      namespace: k8s-project
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi

@@ -3,3 +3,11 @@ name: my-apps
 description: producer and consumer applications
 version: 1.0.0
 appVersion: 1.0.0
+dependencies:
+  - name: rabbitmq
+    version: "15.3.3"
+    repository: "https://charts.bitnami.com/bitnami"
+
+# Run the following command  in side my-apps directory
+# this will fetch and include the RabbitMQ chart inside charts folder:
+#           helm dependency update
