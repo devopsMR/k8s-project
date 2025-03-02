@@ -66,7 +66,7 @@ if __name__ == '__main__':
             message = os.getenv("RABBITMQ_MESSAGE")
 
             if not message:  # Handles both missing (`None`) and empty (`""`) cases
-                message = "Hello today date is {} time is {} this is message number {}".format(
+                message = "Hello - date is {} time is {} this is message number {}.".format(
                     current_time.split()[0], current_time.split()[1], counter
                 )
 

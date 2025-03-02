@@ -14,7 +14,7 @@ resourceQuota:
 
 config:
   rabbitmq:
-    host: myhelm-rabbitmq
+    host: rabbitmq
     port: "5672"
     queue: pc
     messageRepeat: "0" # Only used by the producer
@@ -53,6 +53,8 @@ consumer:
     nodePort: 30007
 
 rabbitmq:
+  fullnameOverride: rabbitmq
+
   auth:
     username: rabbitusername
     existingPasswordSecret: rabbitmq-secret
@@ -77,8 +79,7 @@ rabbitmq:
   service:
     type: NodePort
     nodePorts:
-      amqp: 30009   # RabbitMQ AMQP (5672)
-      manager: 30008 # RabbitMQ Management UI (15672)
+      manager: ""  # Expose management service on port 30008
 
 extraManifests:
   - apiVersion: v1
