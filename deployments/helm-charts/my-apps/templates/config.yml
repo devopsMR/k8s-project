@@ -6,7 +6,7 @@ metadata:
 data:
   RABBITMQ_HOST: "{{ .Values.config.rabbitmq.host }}"
   RABBITMQ_PORT: "{{ .Values.config.rabbitmq.port }}"
-  RABBITMQ_USERNAME: "{{ .Values.config.rabbitmq.username }}"
+  RABBITMQ_USERNAME: "{{ .Values.rabbitmq.auth.username }}"
   RABBITMQ_QUEUE: "{{ .Values.config.rabbitmq.queue }}"
   RABBITMQ_MESSAGE_REPEAT: "{{ .Values.config.rabbitmq.messageRepeat }}" # Used by producer
   PROMETHEUS_PORT: "{{ .Values.config.rabbitmq.prometheusPort }}" # Used by consumer
