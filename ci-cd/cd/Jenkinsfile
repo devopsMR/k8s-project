@@ -47,6 +47,7 @@ pipeline {
                         sh """
                         helm upgrade myhelm . \
                           --namespace k8s-project \
+                          --reuse-values \
                           --set producer.image.tag=${env.LATEST_PRODUCER_TAG} \
                           --set consumer.image.tag=${env.LATEST_CONSUMER_TAG}
                         """
